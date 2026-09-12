@@ -1,33 +1,43 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 export default function LoadingScreen({ done }: { done: boolean }) {
   const [hidden, setHidden] = useState(false);
   const [progress, setProgress] = useState(0);
+  const progressRef = useRef(0);
+
+  const updateProgress = (value: number) => {
+    progressRef.current = value;
+    setProgress(value);
+  };
 
   // Cosmetic progress creep so the bar always feels alive, even before real
   // frame-load events land — then snaps to 100 the moment `done` flips true.
   useEffect(() => {
     if (done) {
-      gsap.to({ p: progress }, {
+      const state = { p: progressRef.current };
+      const tween = gsap.to(state, {
         p: 100,
         duration: 0.4,
         onUpdate: function () {
-          setProgress(this.targets()[0].p);
+          updateProgress(this.targets()[0].p);
         },
         onComplete: () => {
           setTimeout(() => setHidden(true), 350);
         },
       });
-      return;
+      return () => tween.kill();
     }
     const id = setInterval(() => {
-      setProgress((p) => (p < 88 ? p + (88 - p) * 0.06 : p));
+      const next = progressRef.current < 88
+        ? progressRef.current + (88 - progressRef.current) * 0.06
+        : progressRef.current;
+      updateProgress(next);
     }, 120);
     return () => clearInterval(id);
-  }, [done, progress]);
+  }, [done]);
 
   if (hidden) return null;
 

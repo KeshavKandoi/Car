@@ -14,26 +14,20 @@ import AeroSection from "@/components/sections/AeroSection";
 import InteriorSection from "@/components/sections/InteriorSection";
 import TunnelSection from "@/components/sections/TunnelSection";
 import FinalSection from "@/components/sections/FinalSection";
-import { CHAPTERS, framePath } from "@/lib/constants";
+import { framePath } from "@/lib/constants";
 
 export default function Home() {
   useLenis();
   const [heroReady, setHeroReady] = useState(false);
 
-  // Gate the loading screen specifically on the Hero chapter's first frame —
-  // the other chapters continue preloading in the background as the user scrolls.
+  // Gate the loading screen on the Hero chapter's first frame only.
   useEffect(() => {
     const img = new Image();
+    img.decoding = "async";
     img.src = framePath("hero", 1);
     const finish = () => setHeroReady(true);
     img.onload = finish;
     img.onerror = finish;
-    // Also give every other chapter's first frame a warm start in the cache.
-    (Object.keys(CHAPTERS) as (keyof typeof CHAPTERS)[]).forEach((id) => {
-      if (id === "hero") return;
-      const warm = new Image();
-      warm.src = framePath(id, 1);
-    });
   }, []);
 
   return (

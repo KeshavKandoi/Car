@@ -7,11 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/**
- * Boots Lenis and syncs it to GSAP's ticker so every ScrollTrigger-driven
- * timeline scrubs off the same smoothed scroll value instead of the raw
- * (jumpy) native scroll position. Call this once, near the top of the tree.
- */
+
 export function useLenis() {
   useEffect(() => {
     const lenis = new Lenis({
